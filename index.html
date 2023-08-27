@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probando View Transition API - con fotos</title>
+    <style>
+        .content {
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+            width: 75%
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .card button {
+            font-family: arial;
+            color: #14396A;
+            font-size: 14px;
+            text-shadow: 1px 1px 0px #7CACDE;
+            box-shadow: 1px 1px 1px #BEE2F9;
+            margin: 25px 0;
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: 2px solid #3866A3;
+            background: #63B8EE;
+            background: linear-gradient(to top, #63B8EE, #468CCF);
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="imageContainer" class="content">
+            <img
+                src="./assets/gino_hallOfFame.jpg"
+                alt="ginobili-dunking"
+                width="300"
+                height="200"
+                data-name="manu1"
+                style="view-transition-name: manu1"
+            />
+            
+            <img
+                src="./assets/Gino-Harden-Block.jpeg"
+                alt="ginobili-blocking"
+                width="300"
+                height="200"
+                data-name="manu2"
+                style="view-transition-name: manu2"
+            />
+
+            <img
+                src="./assets/Messi-mundial.webp"
+                alt="manu_duncan_parker"
+                width="300"
+                height="200"
+                data-name="messi1"
+                style="view-transition-name: messi1"
+            />
+        </div>
+    </div>    
+
+    <script>
+        // Obtener referencias a los elementos del DOM
+        const imageContainer = document.querySelector("#imageContainer");
+        const images = document.querySelectorAll("img");
+
+        // Asignar eventos de clic a las imágenes
+        images.forEach((image) => {
+            image.addEventListener("click", handleImageClick);
+        });
+
+        // Función para manejar el clic en una imagen
+        function handleImageClick(e) {
+            const target = e.target;
+            if (!document.startViewTransition) {
+                updateDOM(target);
+                return;
+            }
+            document.startViewTransition(() => updateDOM(target));
+        }
+
+        // Función para renderizar una sola foto
+        function updateDOM(target) {
+            const src = target.getAttribute("src");
+            const transitionName = target.getAttribute("data-name");
+
+            imageContainer.innerHTML = `
+                <div class="card">
+                    <img src="${src}" width="600" style="view-transition-name: ${transitionName}">
+                    <button class="boton">Volver</button>
+                </div>
+            `;
+
+            const backButton = imageContainer.querySelector(".boton");
+            backButton.addEventListener("click", handleBackButtonClick);
+        }
+
+        // Función para manejar el clic en el botón "Volver"
+        function handleBackButtonClick() {
+            const backButton = imageContainer.querySelector(".boton");
+            backButton.removeEventListener("click", handleBackButtonClick);
+
+            if (!document.startViewTransition) {
+                restoreImages();
+                return;
+            }
+
+            document.startViewTransition(() => {
+                restoreImages();
+            });
+        }
+
+        // Función para restaurar las imágenes originales
+        function restoreImages() {
+            imageContainer.innerHTML = "";
+            
+            images.forEach((image) => {
+                const clonedImage = image.cloneNode(true);
+                clonedImage.addEventListener("click", handleImageClick);
+                imageContainer.appendChild(clonedImage);
+            });
+        }
+
+    </script>
+
+</body>
+</html>
